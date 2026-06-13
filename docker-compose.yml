@@ -1,0 +1,40 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: ecobuddy-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+    container_name: ecobuddy-backend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/ecobuddy-ai
+      CLIENT_ORIGIN: http://localhost:3000
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+    command: sh -c "npm run seed && npm start"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    container_name: ecobuddy-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  mongo-data:
