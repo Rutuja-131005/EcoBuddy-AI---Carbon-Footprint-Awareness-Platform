@@ -19,7 +19,8 @@ const connectDB = async (retries = 8) => {
     } catch (error) {
       if (attempt === retries) {
         console.error("MongoDB connection failed:", error.message);
-        throw error;
+        console.warn("Continuing server startup without database. DB features will be unavailable.");
+        return null;
       }
 
       console.log(`MongoDB unavailable, retrying (${attempt}/${retries})...`);
