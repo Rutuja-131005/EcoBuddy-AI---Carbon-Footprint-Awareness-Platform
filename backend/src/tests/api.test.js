@@ -9,13 +9,11 @@ const EmissionFactor = require("../models/EmissionFactor");
 const TEST_MONGO_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/ecobuddy-test";
 
 beforeAll(async () => {
-  // Disconnect any active connections to prevent collision
   if (mongoose.connection.readyState !== 0) {
     await mongoose.disconnect();
   }
   await mongoose.connect(TEST_MONGO_URI);
 
-  // Setup seed database requirements
   await EmissionFactor.deleteMany({});
   await EmissionFactor.create([
     {
@@ -48,8 +46,15 @@ describe("EcoBuddy AI Backend API Integration Tests", () => {
   let createdActivityId;
   let createdGoalId;
 
-  // Test 1: Activity creation and Carbon calculation
-  test("POST /api/activities - should create activity and return correct carbon calculation", async () => {
+  test("GET /api/health - returns API health status", async () => {
+    const response = await request(app).get("/api/health");
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.database).toBe("connected");
+  });
+
+  test("POST /api/activities - creates activity with carbon calculation", async () => {
     const response = await request(app)
       .post("/api/activities")
       .send({
@@ -62,28 +67,23 @@ describe("EcoBuddy AI Backend API Integration Tests", () => {
 
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
-    expect(response.body.data.emission).toBe(10.5); // 50 * 0.21
+    expect(response.body.data.emission).toBe(10.5);
     expect(response.body.data.emissionFactor).toBe(0.21);
 
     createdActivityId = response.body.data._id;
   });
 
-  // Test 2: Activity update
-  test("PUT /api/activities/:id - should update quantity and recalculate emissions", async () => {
+  test("PUT /api/activities/:id - updates quantity and recalculates emissions", async () => {
     const response = await request(app)
       .put(`/api/activities/${createdActivityId}`)
-      .send({
-        quantity: 100
-      });
+      .send({ quantity: 100 });
 
     expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
     expect(response.body.data.quantity).toBe(100);
-    expect(response.body.data.emission).toBe(21); // 100 * 0.21
+    expect(response.body.data.emission).toBe(21);
   });
 
-  // Test 3: Error handling for invalid input
-  test("POST /api/activities - should fail with 400 for negative quantity or invalid category", async () => {
+  test("POST /api/activities - rejects invalid negative quantity", async () => {
     const response = await request(app)
       .post("/api/activities")
       .send({
@@ -97,8 +97,21 @@ describe("EcoBuddy AI Backend API Integration Tests", () => {
     expect(response.body.success).toBe(false);
   });
 
-  // Test 4: Recommendation engine returns recommendations
-  test("GET /api/recommendations - should return carbon reduction suggestions", async () => {
+  test("POST /api/activities - rejects invalid category", async () => {
+    const response = await request(app)
+      .post("/api/activities")
+      .send({
+        category: "InvalidCategory",
+        activityType: "Car",
+        quantity: 10,
+        date: "2026-06-13"
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("GET /api/recommendations - returns carbon reduction suggestions", async () => {
     const response = await request(app).get("/api/recommendations");
 
     expect(response.status).toBe(200);
@@ -107,8 +120,26 @@ describe("EcoBuddy AI Backend API Integration Tests", () => {
     expect(response.body.data.length).toBeGreaterThan(0);
   });
 
-  // Test 5: Goals creation
-  test("POST /api/goals - should create a new reduction target", async () => {
+  test("GET /api/dashboard - returns aggregated dashboard metrics", async () => {
+    const response = await request(app).get("/api/dashboard");
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toHaveProperty("totalFootprint");
+    expect(response.body.data).toHaveProperty("carbonScore");
+    expect(Array.isArray(response.body.data.categoryEmissions)).toBe(true);
+  });
+
+  test("GET /api/emission-factors - returns emission factor catalog", async () => {
+    const response = await request(app).get("/api/emission-factors?category=Transport");
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.length).toBeGreaterThan(0);
+    expect(response.body.data.every((factor) => factor.category === "Transport")).toBe(true);
+  });
+
+  test("POST /api/goals - creates a reduction target", async () => {
     const response = await request(app)
       .post("/api/goals")
       .send({
@@ -120,26 +151,52 @@ describe("EcoBuddy AI Backend API Integration Tests", () => {
       });
 
     expect(response.status).toBe(201);
-    expect(response.body.success).toBe(true);
     expect(response.body.data.title).toBe("Reduce transport emissions");
     expect(response.body.data.status).toBe("active");
 
     createdGoalId = response.body.data._id;
   });
 
-  // Test 6: Complete goal
-  test("PATCH /api/goals/:id/complete - should mark a goal completed", async () => {
-    const response = await request(app)
-      .patch(`/api/goals/${createdGoalId}/complete`);
+  test("PATCH /api/goals/:id/complete - marks goal completed", async () => {
+    const response = await request(app).patch(`/api/goals/${createdGoalId}/complete`);
 
     expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
     expect(response.body.data.status).toBe("completed");
     expect(response.body.data.progress).toBe(100);
   });
 
-  // Test 7: Activity delete
-  test("DELETE /api/activities/:id - should remove activity and associated carbon record", async () => {
+  test("GET /api/reports - returns report payload", async () => {
+    const response = await request(app).get("/api/reports?type=weekly");
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toHaveProperty("total");
+    expect(Array.isArray(response.body.data.categoryBreakdown)).toBe(true);
+  });
+
+  test("GET /api/reports/download/pdf - generates PDF report", async () => {
+    const response = await request(app).get("/api/reports/download/pdf?type=weekly");
+
+    expect(response.status).toBe(200);
+    expect(response.headers["content-type"]).toMatch(/pdf/);
+    expect(response.body.length).toBeGreaterThan(100);
+  });
+
+  test("GET /api/activities/:id - returns 400 for invalid identifier", async () => {
+    const response = await request(app).get("/api/activities/not-a-valid-id");
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("GET /api/activities/:id - returns 404 for missing activity", async () => {
+    const response = await request(app).get(`/api/activities/${new mongoose.Types.ObjectId()}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("DELETE /api/activities/:id - removes activity and carbon record", async () => {
     const response = await request(app).delete(`/api/activities/${createdActivityId}`);
 
     expect(response.status).toBe(200);

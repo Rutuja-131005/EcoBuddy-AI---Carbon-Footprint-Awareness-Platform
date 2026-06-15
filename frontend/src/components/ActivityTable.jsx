@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Edit3, Trash2 } from "lucide-react";
 import EmptyState from "./EmptyState";
 import { formatDate, formatKg, formatNumber } from "../utils/formatters";
@@ -16,15 +17,30 @@ const ActivityTable = ({ activities = [], onDelete, onEdit }) => {
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-soft">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
+          <caption className="sr-only">Logged carbon activities</caption>
           <thead className="bg-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
             <tr>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3">Category</th>
-              <th className="px-4 py-3">Activity</th>
-              <th className="px-4 py-3">Quantity</th>
-              <th className="px-4 py-3">Emission</th>
-              <th className="px-4 py-3">Notes</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <th scope="col" className="px-4 py-3">
+                Date
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Category
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Activity
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Quantity
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Emission
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Notes
+              </th>
+              <th scope="col" className="px-4 py-3 text-right">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
@@ -67,4 +83,4 @@ const ActivityTable = ({ activities = [], onDelete, onEdit }) => {
   );
 };
 
-export default ActivityTable;
+export default memo(ActivityTable);

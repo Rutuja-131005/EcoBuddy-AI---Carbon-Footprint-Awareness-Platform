@@ -33,7 +33,11 @@ const withProgress = (goal, currentMonthlyEmission) => {
   const targetReduction = Number(plain.targetReduction) || 0;
   const reductionAchieved = Math.max(0, baselineEmission - currentMonthlyEmission);
   const progress =
-    targetReduction > 0 ? Math.min(100, round((reductionAchieved / targetReduction) * 100)) : 0;
+    plain.status === "completed"
+      ? 100
+      : targetReduction > 0
+        ? Math.min(100, round((reductionAchieved / targetReduction) * 100))
+        : 0;
 
   return {
     ...plain,
@@ -105,9 +109,20 @@ const completeGoal = async (id) => {
   return withProgress(goal, currentMonthlyEmission);
 };
 
+const deleteGoal = async (id) => {
+  const goal = await Goal.findByIdAndDelete(id);
+
+  if (!goal) {
+    throw createError(404, "Goal not found.");
+  }
+
+  return goal;
+};
+
 module.exports = {
   completeGoal,
   createGoal,
+  deleteGoal,
   getCurrentMonthlyEmission,
   listGoalsWithProgress,
   updateGoal,

@@ -1,0 +1,62 @@
+steps:
+  # Build backend image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-backend'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/backend:latest'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/backend:$COMMIT_SHA'
+      - './backend'
+
+  # Build frontend image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-frontend'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/frontend:latest'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/frontend:$COMMIT_SHA'
+      - '--build-arg'
+      - 'VITE_API_URL=https://ecobuddy-backend-${PROJECT_ID}.us-central1.run.app/api'
+      - './frontend'
+
+  # Push backend to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-backend'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/backend:$COMMIT_SHA'
+
+  # Push frontend to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-frontend'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/frontend:$COMMIT_SHA'
+
+  # Deploy backend to Cloud Run
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    id: 'deploy-backend'
+    args:
+      - run
+      - '--service=ecobuddy-backend'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/backend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+
+  # Deploy frontend to Cloud Run
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    id: 'deploy-frontend'
+    args:
+      - run
+      - '--service=ecobuddy-frontend'
+      - '--image=us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/frontend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/backend:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/ecobuddy/frontend:$COMMIT_SHA'

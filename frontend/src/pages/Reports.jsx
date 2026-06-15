@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Bar, Line } from "react-chartjs-2";
 import { Download, FileText } from "lucide-react";
 import ChartPanel from "../components/ChartPanel";
 import EmptyState from "../components/EmptyState";
 import ErrorBanner from "../components/ErrorBanner";
 import LoadingState from "../components/LoadingState";
+import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
+import { categories } from "../constants/categories";
 import { api } from "../services/api";
 import { baseChartOptions, softChartColors } from "../utils/chartConfig";
-import { categories, formatDate, formatKg } from "../utils/formatters";
+import { formatDate, formatKg } from "../utils/formatters";
 
 const Reports = () => {
   const [filters, setFilters] = useState({
@@ -23,9 +25,9 @@ const Reports = () => {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
-  const loadReport = async (nextFilters = filters) => {
+  const loadReport = useCallback(async (nextFilters = filters) => {
     setReport(await api.getReport(nextFilters));
-  };
+  }, [filters]);
 
   useEffect(() => {
     const run = async () => {
@@ -40,23 +42,26 @@ const Reports = () => {
     };
 
     run();
+  }, [loadReport]);
+
+  const updateFilter = useCallback((key, value) => {
+    setFilters((current) => ({ ...current, [key]: value }));
   }, []);
 
-  const updateFilter = (key, value) => {
-    setFilters((current) => ({ ...current, [key]: value }));
-  };
+  const handleSubmit = useCallback(
+    async (event) => {
+      event.preventDefault();
+      try {
+        setError("");
+        await loadReport(filters);
+      } catch (err) {
+        setError(err.message);
+      }
+    },
+    [filters, loadReport]
+  );
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      setError("");
-      await loadReport(filters);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleDownload = async () => {
+  const handleDownload = useCallback(async () => {
     try {
       setDownloading(true);
       setError("");
@@ -66,7 +71,7 @@ const Reports = () => {
     } finally {
       setDownloading(false);
     }
-  };
+  }, [filters]);
 
   const dailyData = useMemo(() => {
     const items = report?.dailyTrend || [];
@@ -101,10 +106,16 @@ const Reports = () => {
     };
   }, [report]);
 
-  if (loading) return <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"><LoadingState /></main>;
+  if (loading) {
+    return (
+      <PageContainer>
+        <LoadingState />
+      </PageContainer>
+    );
+  }
 
   return (
-    <main className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:px-8">
+    <PageContainer>
       <PageHeader
         eyebrow="Reports"
         title="Carbon reports"
@@ -123,11 +134,12 @@ const Reports = () => {
       />
       <ErrorBanner message={error} />
 
-      <form onSubmit={handleSubmit} className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
+      <form onSubmit={handleSubmit} className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft" aria-label="Report filters">
         <div className="grid gap-4 md:grid-cols-4">
-          <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Report type
+          <div className="grid gap-2 text-sm font-medium text-slate-700">
+            <label htmlFor="report-type">Report type</label>
             <select
+              id="report-type"
               className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
               value={filters.type}
               onChange={(event) => updateFilter("type", event.target.value)}
@@ -136,11 +148,12 @@ const Reports = () => {
               <option value="monthly">Monthly</option>
               <option value="category-wise">Category-wise</option>
             </select>
-          </label>
+          </div>
 
-          <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Category
+          <div className="grid gap-2 text-sm font-medium text-slate-700">
+            <label htmlFor="report-category">Category</label>
             <select
+              id="report-category"
               className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
               value={filters.category}
               onChange={(event) => updateFilter("category", event.target.value)}
@@ -152,29 +165,31 @@ const Reports = () => {
                 </option>
               ))}
             </select>
-          </label>
+          </div>
 
-          <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Start date
+          <div className="grid gap-2 text-sm font-medium text-slate-700">
+            <label htmlFor="report-start-date">Start date</label>
             <input
+              id="report-start-date"
               className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
               type="date"
               value={filters.startDate}
               max={filters.endDate || undefined}
               onChange={(event) => updateFilter("startDate", event.target.value)}
             />
-          </label>
+          </div>
 
-          <label className="grid gap-2 text-sm font-medium text-slate-700">
-            End date
+          <div className="grid gap-2 text-sm font-medium text-slate-700">
+            <label htmlFor="report-end-date">End date</label>
             <input
+              id="report-end-date"
               className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
               type="date"
               value={filters.endDate}
               min={filters.startDate || undefined}
               onChange={(event) => updateFilter("endDate", event.target.value)}
             />
-          </label>
+          </div>
         </div>
 
         <button
@@ -202,10 +217,10 @@ const Reports = () => {
           </section>
 
           <section className="grid gap-6 lg:grid-cols-2">
-            <ChartPanel title="Daily trend" subtitle="Emissions by date">
+            <ChartPanel title="Daily trend" subtitle="Emissions by date" summary="Daily emissions trend for the selected report range.">
               {report.dailyTrend.length ? <Line data={dailyData} options={baseChartOptions} /> : <EmptyState title="No trend data" />}
             </ChartPanel>
-            <ChartPanel title="Category-wise report" subtitle="Emissions by category">
+            <ChartPanel title="Category-wise report" subtitle="Emissions by category" summary="Category emissions breakdown for the selected report range.">
               {report.categoryBreakdown.length ? <Bar data={categoryData} options={baseChartOptions} /> : <EmptyState title="No category data" />}
             </ChartPanel>
           </section>
@@ -232,7 +247,7 @@ const Reports = () => {
           </section>
         </>
       ) : null}
-    </main>
+    </PageContainer>
   );
 };
 

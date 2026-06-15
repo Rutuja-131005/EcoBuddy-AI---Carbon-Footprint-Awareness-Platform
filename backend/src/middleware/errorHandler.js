@@ -1,10 +1,12 @@
+const { logError } = require("../utils/logger");
+
 const notFound = (req, res, next) => {
   const error = new Error(`Not found - ${req.originalUrl}`);
   error.statusCode = 404;
   next(error);
 };
 
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
   let statusCode = err.statusCode || res.statusCode;
   statusCode = statusCode && statusCode !== 200 ? statusCode : 500;
 
@@ -27,11 +29,15 @@ const errorHandler = (err, req, res, next) => {
     message = "A matching record already exists.";
   }
 
+  if (statusCode >= 500) {
+    logError("Unhandled server error", err);
+    message = "An unexpected error occurred. Please try again later.";
+  }
+
   res.status(statusCode).json({
     success: false,
     message,
-    ...(details ? { details } : {}),
-    ...(process.env.NODE_ENV === "production" ? {} : { stack: err.stack })
+    ...(details ? { details } : {})
   });
 };
 

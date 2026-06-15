@@ -1,4 +1,6 @@
+import { memo } from "react";
 import { CheckCircle2, Trash2 } from "lucide-react";
+import ProgressBar from "./ProgressBar";
 import { formatDate, formatKg, progressTone } from "../utils/formatters";
 
 const GoalCard = ({ goal, onComplete, onDelete }) => {
@@ -16,10 +18,11 @@ const GoalCard = ({ goal, onComplete, onDelete }) => {
         </span>
       </div>
 
-      <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100">
-        <div
-          className={`h-full rounded-full ${progressTone(goal.progress, goal.status)}`}
-          style={{ width: `${Math.min(100, goal.progress || 0)}%` }}
+      <div className="mt-4">
+        <ProgressBar
+          value={goal.progress}
+          label={`${goal.title} progress`}
+          toneClass={progressTone(goal.progress, goal.status)}
         />
       </div>
 
@@ -68,4 +71,4 @@ const GoalCard = ({ goal, onComplete, onDelete }) => {
   );
 };
 
-export default GoalCard;
+export default memo(GoalCard);

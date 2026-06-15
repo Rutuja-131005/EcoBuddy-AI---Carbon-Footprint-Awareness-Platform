@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Save, X } from "lucide-react";
-import { categories, categoryActivityTypes, toInputDate } from "../utils/formatters";
+import { categories, categoryActivityTypes } from "../constants/categories";
+import { toInputDate } from "../utils/formatters";
 
 const emptyForm = {
   category: "Transport",

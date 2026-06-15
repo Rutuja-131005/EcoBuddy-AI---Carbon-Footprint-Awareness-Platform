@@ -1,35 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
 import { Activity, BarChart3, Gauge, Target, TrendingDown } from "lucide-react";
 import ChartPanel from "../components/ChartPanel";
 import EmptyState from "../components/EmptyState";
 import ErrorBanner from "../components/ErrorBanner";
 import LoadingState from "../components/LoadingState";
+import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
+import ProgressBar from "../components/ProgressBar";
 import StatCard from "../components/StatCard";
+import { useApiData } from "../hooks/useApiData";
 import { api } from "../services/api";
 import { baseChartOptions, chartColors, softChartColors } from "../utils/chartConfig";
 import { formatDate, formatKg } from "../utils/formatters";
 
 const Dashboard = () => {
-  const [dashboard, setDashboard] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadDashboard = async () => {
-      try {
-        setError("");
-        setDashboard(await api.getDashboard());
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadDashboard();
-  }, []);
+  const { data: dashboard, error, loading } = useApiData(() => api.getDashboard());
 
   const categoryPieData = useMemo(() => {
     const items = dashboard?.categoryEmissions || [];
@@ -79,7 +65,13 @@ const Dashboard = () => {
     };
   }, [dashboard]);
 
-  if (loading) return <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"><LoadingState /></main>;
+  if (loading) {
+    return (
+      <PageContainer>
+        <LoadingState />
+      </PageContainer>
+    );
+  }
 
   const activeGoals = dashboard?.goals?.filter((goal) => goal.status === "active") || [];
   const latestGoal = activeGoals[0];
@@ -88,8 +80,12 @@ const Dashboard = () => {
     scales: undefined
   };
 
+  const categorySummary = (dashboard?.categoryEmissions || [])
+    .map((item) => `${item.category}: ${formatKg(item.total)}`)
+    .join(", ");
+
   return (
-    <main className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:px-8">
+    <PageContainer>
       <PageHeader
         eyebrow="Dashboard"
         title="Carbon footprint overview"
@@ -113,15 +109,19 @@ const Dashboard = () => {
           </section>
 
           <section className="grid gap-6 lg:grid-cols-2">
-            <ChartPanel title="Category-wise emissions" subtitle="Total kg CO2e by source">
+            <ChartPanel
+              title="Category-wise emissions"
+              subtitle="Total kg CO2e by source"
+              summary={categorySummary || "No category emissions recorded yet."}
+            >
               {dashboard.categoryEmissions.length ? <Pie data={categoryPieData} options={pieOptions} /> : <EmptyState title="No category data" />}
             </ChartPanel>
-            <ChartPanel title="Weekly trend" subtitle="Last eight weeks">
+            <ChartPanel title="Weekly trend" subtitle="Last eight weeks" summary="Weekly emissions trend for the last eight weeks.">
               <Bar data={weeklyData} options={baseChartOptions} />
             </ChartPanel>
           </section>
 
-          <ChartPanel title="Monthly trend" subtitle="Last six months" height="h-96">
+          <ChartPanel title="Monthly trend" subtitle="Last six months" height="h-96" summary="Monthly emissions trend for the last six months.">
             <Line data={monthlyData} options={baseChartOptions} />
           </ChartPanel>
 
@@ -136,7 +136,9 @@ const Dashboard = () => {
                   <div key={activity._id} className="flex flex-col gap-1 rounded-lg border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="font-semibold text-slate-950">{activity.activityType}</p>
-                      <p className="text-sm text-slate-500">{activity.category} · {formatDate(activity.date)}</p>
+                      <p className="text-sm text-slate-500">
+                        {activity.category} · {formatDate(activity.date)}
+                      </p>
                     </div>
                     <p className="text-sm font-semibold text-teal-800">{formatKg(activity.emission)}</p>
                   </div>
@@ -153,8 +155,8 @@ const Dashboard = () => {
                     <p className="font-semibold text-slate-900">{latestGoal.title}</p>
                     <p className="text-sm font-bold text-teal-800">{Math.round(latestGoal.progress || 0)}%</p>
                   </div>
-                  <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-teal-600" style={{ width: `${Math.min(100, latestGoal.progress || 0)}%` }} />
+                  <div className="mt-3">
+                    <ProgressBar value={latestGoal.progress} label={`${latestGoal.title} progress`} />
                   </div>
                   <dl className="mt-4 grid gap-3 text-sm text-slate-600">
                     <div className="flex justify-between gap-4">
@@ -174,7 +176,7 @@ const Dashboard = () => {
           </section>
         </>
       ) : null}
-    </main>
+    </PageContainer>
   );
 };
 

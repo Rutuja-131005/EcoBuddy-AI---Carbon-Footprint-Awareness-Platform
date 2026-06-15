@@ -1,6 +1,5 @@
 const Activity = require("../models/Activity");
 const CarbonRecord = require("../models/CarbonRecord");
-const { CATEGORIES } = require("../utils/constants");
 const {
   addMonths,
   isoDate,
@@ -14,21 +13,6 @@ const { listGoalsWithProgress } = require("./goalService");
 
 const getRecordsSince = async (startDate) =>
   CarbonRecord.find({ recordedAt: { $gte: startDate } }).sort({ recordedAt: 1 }).lean();
-
-const categoryBreakdown = (records) => {
-  const totals = CATEGORIES.reduce((acc, category) => {
-    acc[category] = 0;
-    return acc;
-  }, {});
-
-  records.forEach((record) => {
-    totals[record.category] = round((totals[record.category] || 0) + record.emission);
-  });
-
-  return Object.entries(totals)
-    .map(([category, total]) => ({ category, total }))
-    .filter((item) => item.total > 0);
-};
 
 const buildWeeklyTrend = (records) => {
   const currentWeek = startOfWeek(new Date());
@@ -128,6 +112,5 @@ const getDashboard = async () => {
 };
 
 module.exports = {
-  categoryBreakdown,
   getDashboard
 };

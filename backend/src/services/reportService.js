@@ -46,17 +46,6 @@ const resolveReportRange = (type, startDate, endDate) => {
   };
 };
 
-const summarizeByCategory = (records) => {
-  const totals = records.reduce((acc, record) => {
-    acc[record.category] = round((acc[record.category] || 0) + record.emission);
-    return acc;
-  }, {});
-
-  return Object.entries(totals)
-    .map(([category, total]) => ({ category, total }))
-    .sort((a, b) => b.total - a.total);
-};
-
 const summarizeByDay = (records, start, end) => {
   const buckets = {};
   let cursor = startOfDay(start);

@@ -1,57 +1,48 @@
-const cors = require("cors");
 const dotenv = require("dotenv");
 const express = require("express");
 const helmet = require("helmet");
+const cors = require("cors");
 const morgan = require("morgan");
+const mongoose = require("mongoose");
 const mongoSanitize = require("express-mongo-sanitize");
-const rateLimit = require("express-rate-limit");
+const xss = require("xss-clean");
 const activityRoutes = require("./routes/activityRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const emissionFactorRoutes = require("./routes/emissionFactorRoutes");
 const goalRoutes = require("./routes/goalRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const { loadEnv } = require("./config/env");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
+const { corsOptions, apiLimiter } = require("./middleware/security");
 
 dotenv.config();
+loadEnv();
 
 const app = express();
+app.set("trust proxy", 1);
 
-const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
-
-// Rate limiting middleware configuration
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 150, // limit each IP to 150 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    message: "Too many requests from this IP, please try again after 15 minutes."
-  }
-});
-
-app.use(helmet());
-app.use(
-  cors({
-    origin: allowedOrigin,
-    credentials: false
-  })
-);
-app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: true, limit: "1mb" }));
-app.use(mongoSanitize());
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors(corsOptions));
+app.use(express.json({ limit: "512kb" }));
+app.use(express.urlencoded({ extended: true, limit: "512kb" }));
+app.use(mongoSanitize({ replaceWith: "_" }));
+app.use(xss());
 
 if (process.env.NODE_ENV !== "test") {
-  app.use(morgan("dev"));
+  app.use(morgan("combined"));
 }
 
-app.use("/api", limiter);
+app.use(apiLimiter);
 
-app.get("/api/health", (req, res) => {
-  res.json({
-    success: true,
-    message: "EcoBuddy AI API is healthy."
+app.get("/api/health", (_req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = dbState === 1 ? "connected" : dbState === 2 ? "connecting" : "disconnected";
+
+  res.status(dbState === 1 ? 200 : 503).json({
+    success: dbState === 1,
+    message: dbState === 1 ? "EcoBuddy AI API is healthy." : "EcoBuddy AI API is running but database is unavailable.",
+    database: dbStatus
   });
 });
 

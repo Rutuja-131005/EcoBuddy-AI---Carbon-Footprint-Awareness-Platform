@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PlusCircle } from "lucide-react";
 import ActivityForm from "../components/ActivityForm";
 import ActivityTable from "../components/ActivityTable";
 import ErrorBanner from "../components/ErrorBanner";
 import LoadingState from "../components/LoadingState";
+import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
 import { api } from "../services/api";
@@ -17,11 +18,11 @@ const Activities = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     const [activityData, factorData] = await Promise.all([api.getActivities(), api.getEmissionFactors()]);
     setActivities(activityData);
     setFactors(factorData);
-  };
+  }, []);
 
   useEffect(() => {
     const run = async () => {
@@ -36,45 +37,65 @@ const Activities = () => {
     };
 
     run();
+  }, [loadData]);
+
+  const handleSubmit = useCallback(
+    async (payload) => {
+      try {
+        setSubmitting(true);
+        setError("");
+        if (editing) {
+          await api.updateActivity(editing._id, payload);
+        } else {
+          await api.createActivity(payload);
+        }
+        setEditing(null);
+        await loadData();
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [editing, loadData]
+  );
+
+  const handleDelete = useCallback(
+    async (id) => {
+      const confirmed = window.confirm("Delete this activity?");
+      if (!confirmed) return;
+
+      try {
+        setError("");
+        await api.deleteActivity(id);
+        await loadData();
+      } catch (err) {
+        setError(err.message);
+      }
+    },
+    [loadData]
+  );
+
+  const handleEdit = useCallback((activity) => {
+    setEditing(activity);
   }, []);
 
-  const handleSubmit = async (payload) => {
-    try {
-      setSubmitting(true);
-      setError("");
-      if (editing) {
-        await api.updateActivity(editing._id, payload);
-      } else {
-        await api.createActivity(payload);
-      }
-      setEditing(null);
-      await loadData();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm("Delete this activity?");
-    if (!confirmed) return;
-
-    try {
-      setError("");
-      await api.deleteActivity(id);
-      await loadData();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+  const handleCancel = useCallback(() => {
+    setEditing(null);
+  }, []);
 
   const total = activities.reduce((sum, activity) => sum + (Number(activity.emission) || 0), 0);
 
-  if (loading) return <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"><LoadingState /></main>;
+  if (loading) {
+    return (
+      <PageContainer>
+        <LoadingState />
+      </PageContainer>
+    );
+  }
 
   return (
-    <main className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:px-8">
+    <PageContainer>
       <PageHeader
         eyebrow="Activity Management"
         title="Track daily carbon activity"
@@ -91,13 +112,13 @@ const Activities = () => {
       <ActivityForm
         factors={factors}
         initialData={editing}
-        onCancel={() => setEditing(null)}
+        onCancel={handleCancel}
         onSubmit={handleSubmit}
         submitting={submitting}
       />
 
-      <ActivityTable activities={activities} onDelete={handleDelete} onEdit={setEditing} />
-    </main>
+      <ActivityTable activities={activities} onDelete={handleDelete} onEdit={handleEdit} />
+    </PageContainer>
   );
 };
 

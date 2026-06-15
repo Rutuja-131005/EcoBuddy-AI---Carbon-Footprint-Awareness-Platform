@@ -43,7 +43,7 @@ const benefits = [
 ];
 
 const Landing = () => (
-  <main>
+  <div>
     <section className="hero-image relative flex min-h-[calc(100vh-4.25rem)] items-center">
       <div className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="max-w-2xl text-white">
@@ -134,7 +134,7 @@ const Landing = () => (
         </div>
       </div>
     </section>
-  </main>
+  </div>
 );
 
 export default Landing;

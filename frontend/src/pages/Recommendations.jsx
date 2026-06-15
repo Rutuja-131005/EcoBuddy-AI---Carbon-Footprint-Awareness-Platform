@@ -1,35 +1,25 @@
-import { useEffect, useState } from "react";
 import ErrorBanner from "../components/ErrorBanner";
 import LoadingState from "../components/LoadingState";
+import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import RecommendationCard from "../components/RecommendationCard";
 import EmptyState from "../components/EmptyState";
+import { useApiData } from "../hooks/useApiData";
 import { api } from "../services/api";
 
 const Recommendations = () => {
-  const [recommendations, setRecommendations] = useState([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const { data: recommendations = [], error, loading } = useApiData(() => api.getRecommendations());
 
-  useEffect(() => {
-    const run = async () => {
-      try {
-        setError("");
-        setRecommendations(await api.getRecommendations());
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    run();
-  }, []);
-
-  if (loading) return <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"><LoadingState /></main>;
+  if (loading) {
+    return (
+      <PageContainer>
+        <LoadingState />
+      </PageContainer>
+    );
+  }
 
   return (
-    <main className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:px-8">
+    <PageContainer>
       <PageHeader
         eyebrow="Recommendation Engine"
         title="Dynamic reduction suggestions"
@@ -46,7 +36,7 @@ const Recommendations = () => {
           <EmptyState title="No recommendations available" description="Log activities to generate targeted suggestions." />
         )}
       </section>
-    </main>
+    </PageContainer>
   );
 };
 
