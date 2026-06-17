@@ -1,6 +1,6 @@
 const xss = require("xss");
 
-const sanitizeText = (text, options = {}) => {
+const sanitizeText = (text) => {
   if (typeof text !== "string") return "";
   
   return xss(text, {

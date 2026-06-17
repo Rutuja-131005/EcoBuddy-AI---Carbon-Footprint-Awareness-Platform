@@ -40,6 +40,10 @@ const errorHandler = (err, req, res, _next) => {
     method: req.method
   });
 
+  if (statusCode === 500) {
+    message = "An unexpected error occurred. Please try again later.";
+  }
+
   // Send minimal info to client
   const response = {
     success: false,
