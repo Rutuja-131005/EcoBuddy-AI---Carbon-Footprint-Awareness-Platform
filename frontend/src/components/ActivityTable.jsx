@@ -57,7 +57,7 @@ const ActivityTable = ({ activities = [], onDelete, onEdit }) => {
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-slate-100 hover:text-slate-950"
                       onClick={() => onEdit(activity)}
                       aria-label={`Edit ${activity.activityType}`}
                       title="Edit"
@@ -66,7 +66,7 @@ const ActivityTable = ({ activities = [], onDelete, onEdit }) => {
                     </button>
                     <button
                       type="button"
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-rose-200 text-rose-600 transition hover:bg-rose-50"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-rose-200 text-rose-600 transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-rose-50"
                       onClick={() => onDelete(activity._id)}
                       aria-label={`Delete ${activity.activityType}`}
                       title="Delete"

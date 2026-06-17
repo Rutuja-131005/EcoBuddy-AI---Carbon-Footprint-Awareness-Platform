@@ -12,21 +12,39 @@ import EmptyState from "../components/EmptyState";
 import ActivityForm from "../components/ActivityForm";
 import Navbar from "../components/Navbar";
 import App from "../App";
-import { api } from "../services/api";
+import { activityService } from "../services/activityService";
+import { carbonService } from "../services/carbonService";
+import { goalService } from "../services/goalService";
+import { reportService } from "../services/reportService";
 
-jest.mock("../services/api", () => ({
-  api: {
-    getDashboard: jest.fn(),
+jest.mock("../services/activityService", () => ({
+  activityService: {
     getActivities: jest.fn(),
-    getEmissionFactors: jest.fn(),
     createActivity: jest.fn(),
     updateActivity: jest.fn(),
-    deleteActivity: jest.fn(),
+    deleteActivity: jest.fn()
+  }
+}));
+
+jest.mock("../services/carbonService", () => ({
+  carbonService: {
+    getDashboard: jest.fn(),
+    getEmissionFactors: jest.fn(),
+    getRecommendations: jest.fn()
+  }
+}));
+
+jest.mock("../services/goalService", () => ({
+  goalService: {
     getGoals: jest.fn(),
     createGoal: jest.fn(),
     completeGoal: jest.fn(),
-    deleteGoal: jest.fn(),
-    getRecommendations: jest.fn(),
+    deleteGoal: jest.fn()
+  }
+}));
+
+jest.mock("../services/reportService", () => ({
+  reportService: {
     getReport: jest.fn(),
     downloadReportPdf: jest.fn()
   }
@@ -100,7 +118,7 @@ describe("EcoBuddy AI Frontend Tests", () => {
   });
 
   test("Test 5: Dashboard loads correctly", async () => {
-    api.getDashboard.mockResolvedValueOnce({
+    carbonService.getDashboard.mockResolvedValueOnce({
       totalFootprint: 120.5,
       monthlyTotal: 45.2,
       carbonScore: { score: 75, label: "Good", tone: "improving" },
@@ -127,7 +145,7 @@ describe("EcoBuddy AI Frontend Tests", () => {
   });
 
   test("Test 6: Activities page loads activity table", async () => {
-    api.getActivities.mockResolvedValueOnce([
+    activityService.getActivities.mockResolvedValueOnce([
       {
         _id: "1",
         category: "Transport",
@@ -138,7 +156,7 @@ describe("EcoBuddy AI Frontend Tests", () => {
         notes: ""
       }
     ]);
-    api.getEmissionFactors.mockResolvedValueOnce(mockFactors);
+    carbonService.getEmissionFactors.mockResolvedValueOnce(mockFactors);
 
     render(
       <MemoryRouter>
@@ -161,7 +179,7 @@ describe("EcoBuddy AI Frontend Tests", () => {
   });
 
   test("Test 8: Dashboard API failure shows error state", async () => {
-    api.getDashboard.mockRejectedValueOnce(new Error("API Request Failed"));
+    carbonService.getDashboard.mockRejectedValueOnce(new Error("API Request Failed"));
 
     render(
       <MemoryRouter>
@@ -175,8 +193,8 @@ describe("EcoBuddy AI Frontend Tests", () => {
   });
 
   test("Test 9: Activities page shows error when API fails", async () => {
-    api.getActivities.mockRejectedValueOnce(new Error("Unable to load activities"));
-    api.getEmissionFactors.mockResolvedValueOnce([]);
+    activityService.getActivities.mockRejectedValueOnce(new Error("Unable to load activities"));
+    carbonService.getEmissionFactors.mockResolvedValueOnce([]);
 
     render(
       <MemoryRouter>
@@ -209,7 +227,7 @@ describe("EcoBuddy AI Frontend Tests", () => {
   });
 
   test("Test 11: Goals page renders goal cards", async () => {
-    api.getGoals.mockResolvedValueOnce([
+    goalService.getGoals.mockResolvedValueOnce([
       {
         _id: "goal-1",
         title: "Reduce transport emissions",
@@ -237,7 +255,7 @@ describe("EcoBuddy AI Frontend Tests", () => {
   });
 
   test("Test 12: Recommendations page renders cards", async () => {
-    api.getRecommendations.mockResolvedValueOnce([
+    carbonService.getRecommendations.mockResolvedValueOnce([
       {
         _id: "rec-1",
         title: "Use public transport",
@@ -262,7 +280,7 @@ describe("EcoBuddy AI Frontend Tests", () => {
   });
 
   test("Test 13: Reports page renders report summary", async () => {
-    api.getReport.mockResolvedValueOnce({
+    reportService.getReport.mockResolvedValueOnce({
       total: 12,
       averageDaily: 1.7,
       label: "Weekly report",

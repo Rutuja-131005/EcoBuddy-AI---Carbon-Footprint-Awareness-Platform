@@ -4,11 +4,10 @@ import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import RecommendationCard from "../components/RecommendationCard";
 import EmptyState from "../components/EmptyState";
-import { useApiData } from "../hooks/useApiData";
-import { api } from "../services/api";
+import { useRecommendations } from "../hooks/useRecommendations";
 
 const Recommendations = () => {
-  const { data: recommendations = [], error, loading } = useApiData(() => api.getRecommendations());
+  const { recommendations, error, loading } = useRecommendations();
 
   if (loading) {
     return (

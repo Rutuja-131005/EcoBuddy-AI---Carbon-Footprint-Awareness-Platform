@@ -1,98 +1,309 @@
-# EcoBuddy AI - Carbon Footprint Awareness Platform
+# 🌍 EcoBuddy AI
+### Understand your impact. Reduce your footprint. Save the planet.
 
-Tagline: **Understand your impact. Reduce your footprint. Save the planet.**
+EcoBuddy AI is an intelligent **Carbon Footprint Awareness Platform** that helps individuals measure, track, and reduce their environmental impact through personalized insights and actionable recommendations.
 
-## System Architecture
+---
 
-```mermaid
-graph TD
-  subgraph Frontend [React Application]
-    UI[User Interface]
-    Hooks[Custom Hooks]
-    API_Client[API Services]
-  end
+## 🚀 Live Demo
 
-  subgraph Backend [Node.js / Express]
-    Router[Express Router]
-    Controllers[Controllers]
-    Services[Business Logic & Caching]
-    Models[Mongoose Models]
-  end
+🔗 **Website:** https://your-live-url.com
 
-  subgraph Database [MongoDB]
-    DB[(MongoDB Collections)]
-  end
+🔗 **GitHub Repository:** https://github.com/Rutuja-131005/Carbon-Footprint-Awareness-Platform
 
-  UI -->|State Management| Hooks
-  Hooks -->|API Calls| API_Client
-  API_Client -->|HTTP/REST| Router
-  Router -->|Validation & Auth| Controllers
-  Controllers -->|Delegation| Services
-  Services -->|Query| Models
-  Models -->|Mongoose| DB
+---
+
+## 📖 About the Project
+
+Everyday activities like transportation, electricity consumption, food habits, and waste generation contribute to carbon emissions. However, most people are unaware of their environmental impact.
+
+**EcoBuddy AI** transforms daily activity data into meaningful carbon emission insights (kg CO₂e), helping users:
+
+🌱 Track carbon emissions
+
+📊 Visualize environmental impact
+
+🎯 Set sustainability goals
+
+🤖 Receive personalized recommendations
+
+📄 Generate reports and analytics
+
+---
+
+## ✨ Features
+
+### 📋 Activity Tracking
+Track activities across multiple categories:
+
+- 🚗 Transportation
+- ⚡ Electricity Consumption
+- 🍽️ Food Habits
+- 💧 Water Usage
+- 🗑️ Waste Generation
+
+---
+
+### 📊 Smart Dashboard
+
+Monitor:
+
+- Total Carbon Footprint
+- Weekly Emission Trends
+- Monthly Emission Trends
+- Category-wise Breakdown
+- Carbon Score
+- Progress Towards Goals
+
+---
+
+### 🤖 AI-Powered Recommendations
+
+Get personalized suggestions such as:
+
+✅ Reduce AC usage
+
+✅ Use public transport
+
+✅ Switch to LED lighting
+
+✅ Reduce meat consumption
+
+✅ Adopt sustainable lifestyle habits
+
+---
+
+### 🎯 Goal Management
+
+- Set carbon reduction targets
+- Define target dates
+- Monitor progress
+- Complete sustainability challenges
+
+---
+
+### 📄 Reports & Analytics
+
+Generate:
+
+- Weekly Reports
+- Monthly Reports
+- Category-wise Analysis
+- Downloadable PDF Reports
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React.js
+- Tailwind CSS
+- React Router
+- Chart.js
+
+### Backend
+- Node.js
+- Express.js
+
+### Database
+- MongoDB
+- Mongoose
+
+### Testing
+- Jest
+- Playwright
+- React Testing Library
+
+### Security
+- Helmet
+- CORS
+- Rate Limiting
+- Input Validation
+- XSS Protection
+
+---
+
+## 🔒 Security Features
+
+✅ Content Security Policy (CSP)
+
+✅ Strict Transport Security (HSTS)
+
+✅ X-Frame-Options Protection
+
+✅ X-Content-Type-Options
+
+✅ Referrer Policy
+
+✅ Input Sanitization
+
+✅ Secure API Configuration
+
+---
+
+## 📱 Responsive Design
+
+The platform is fully responsive and optimized for:
+
+💻 Desktop
+
+📱 Mobile
+
+📟 Tablet
+
+---
+
+## 📂 Project Structure
+
+```text
+Carbon-Footprint-Awareness-Platform
+│
+├── frontend
+│   └── src
+│       ├── components
+│       ├── pages
+│       ├── hooks
+│       ├── services
+│       ├── validators
+│       ├── utils
+│       ├── assets
+│       └── constants
+│
+├── backend
+│   ├── controllers
+│   ├── middleware
+│   ├── models
+│   ├── routes
+│   ├── services
+│   ├── validations
+│   └── utils
+│
+├── tests
+├── docker-compose.yml
+├── README.md
+└── .env.example
 ```
 
-## Problem Statement
+---
 
-Most people lack visibility into how everyday choices contribute to carbon emissions. EcoBuddy AI turns activity data into measurable kg CO2e, highlights high-impact categories, and provides actionable reduction guidance through goals, recommendations, and reports.
+## ⚙️ Installation & Setup
 
-## Features
+### Clone Repository
 
-- **Activity Tracking**: Log transport, electricity, food, water, and waste.
-- **AI Recommendations**: Personalized tips to reduce emissions.
-- **Goal Setting**: Set reduction targets and track progress.
-- **Reporting**: Generate weekly and monthly analytics reports with PDF export.
-- **Responsive Dashboard**: Real-time emission calculations and trends.
-- **Security**: Robust rate limiting, Helmet, CORS, and XSS sanitization.
-- **Performance**: Cached queries and database indexes.
+```bash
+git clone https://github.com/Rutuja-131005/Carbon-Footprint-Awareness-Platform.git
+cd Carbon-Footprint-Awareness-Platform
+```
 
-## Setup Instructions
+---
 
-### Prerequisites
-- Node.js (v20+)
-- MongoDB (v6+)
-- Docker & Docker Compose (optional, for containerized setup)
+### Backend Setup
 
-### Local Development Setup
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd "Carbon Footprint Awareness Platform"
-   ```
+---
 
-2. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-   # Create a .env file with your variables
-   npm run dev
-   ```
+### Frontend Setup
 
-3. **Frontend Setup**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-4. **Access the application**
-   Open your browser to `http://localhost:3000` (or the port defined by Vite).
+---
 
-### Docker Setup
+### Open Application
 
-To run the entire stack (Frontend, Backend, and MongoDB) using Docker Compose:
+Frontend:
+
+```text
+http://localhost:3000
+```
+
+Backend:
+
+```text
+http://localhost:5000
+```
+
+---
+
+## 🐳 Docker Setup
+
+Run the complete application:
 
 ```bash
 docker-compose up --build
 ```
-The frontend will be available at `http://localhost:3000` and the backend at `http://localhost:5000`.
 
-## Scripts
+---
 
-- `npm run lint` - Runs ESLint
-- `npm run test` - Runs unit and integration tests
-- `npm run test:coverage` - Generates test coverage reports
+## 🧪 Running Tests
 
-## License
-MIT
+Run Unit Tests:
+
+```bash
+npm run test
+```
+
+Run Test Coverage:
+
+```bash
+npm run test:coverage
+```
+
+Run End-to-End Tests:
+
+```bash
+npm run test:e2e
+```
+
+---
+
+## 📈 Future Enhancements
+
+- 🌳 Carbon Offset Marketplace
+- 🤖 Advanced AI Recommendations
+- 📱 Progressive Web App (PWA)
+- 🏆 Gamification & Achievements
+- 🔔 Smart Sustainability Notifications
+- 🌎 Community Carbon Challenges
+
+---
+
+## 💡 Why EcoBuddy AI?
+
+EcoBuddy AI bridges the gap between environmental awareness and meaningful action by converting everyday activities into measurable insights and guiding users toward a more sustainable lifestyle.
+
+> **"Small actions today can create a greener tomorrow." 🌍**
+
+---
+
+## 👩‍💻 Developer
+
+**Rutuja Jadhav**
+
+Computer Engineering Student | Web Developer | Cloud & AI Enthusiast
+
+🔗 GitHub: https://github.com/Rutuja-131005
+
+🔗 Deployed Link: https://ecobuddy-frontend-403102791132.us-central1.run.app/
+
+---
+
+## ⭐ Support
+
+If you found this project useful:
+
+🌟 Star this repository
+
+🍴 Fork the project
+
+🛠️ Contribute and improve EcoBuddy AI
+
+Together, let's build a greener future! 🌱

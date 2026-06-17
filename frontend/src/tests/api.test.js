@@ -1,7 +1,9 @@
 /**
  * @jest-environment jsdom
  */
-import { api } from "../services/api";
+import { activityService } from "../services/activityService";
+import { carbonService } from "../services/carbonService";
+import { reportService } from "../services/reportService";
 
 describe("EcoBuddy AI API client", () => {
   beforeEach(() => {
@@ -16,7 +18,7 @@ describe("EcoBuddy AI API client", () => {
       json: async () => ({ success: true, data: { totalFootprint: 42 } })
     });
 
-    await expect(api.getDashboard()).resolves.toEqual({ totalFootprint: 42 });
+    await expect(carbonService.getDashboard()).resolves.toEqual({ totalFootprint: 42 });
   });
 
   test("createActivity throws API error message", async () => {
@@ -25,7 +27,7 @@ describe("EcoBuddy AI API client", () => {
       json: async () => ({ success: false, message: "Validation failed." })
     });
 
-    await expect(api.createActivity({})).rejects.toThrow("Validation failed.");
+    await expect(activityService.createActivity({})).rejects.toThrow("Validation failed.");
   });
 
   test("downloadReportPdf triggers browser download", async () => {
@@ -42,7 +44,7 @@ describe("EcoBuddy AI API client", () => {
     });
     jest.spyOn(document.body, "appendChild").mockImplementation(() => {});
 
-    await api.downloadReportPdf({ type: "weekly" });
+    await reportService.downloadReportPdf({ type: "weekly" });
 
     expect(fetch).toHaveBeenCalledWith(expect.stringContaining("/reports/download/pdf?type=weekly"));
     expect(click).toHaveBeenCalled();

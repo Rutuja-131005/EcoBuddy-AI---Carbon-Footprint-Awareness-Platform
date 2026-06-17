@@ -10,7 +10,7 @@ const ProgressBar = ({ value = 0, label, toneClass = "bg-teal-600" }) => {
       aria-label={label || `Progress ${Math.round(clamped)} percent`}
       className="h-3 overflow-hidden rounded-full bg-slate-100"
     >
-      <div className={`h-full rounded-full ${toneClass}`} style={{ width: `${clamped}%` }} />
+      <div className={`h-full rounded-full transition-all duration-500 motion-reduce:transition-none ${toneClass}`} style={{ width: `${clamped}%` }} />
     </div>
   );
 };

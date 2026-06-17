@@ -4,6 +4,8 @@ import { Save, X } from "lucide-react";
 import { categories, categoryActivityTypes } from "../constants/categories";
 import { toInputDate } from "../utils/formatters";
 
+import { validateActivityForm } from "../validators/activitySchema";
+
 const emptyForm = {
   category: "Transport",
   activityType: "Car",
@@ -13,31 +15,6 @@ const emptyForm = {
 };
 
 const unique = (values) => Array.from(new Set(values.filter(Boolean)));
-
-const validateActivityForm = (form) => {
-  const errors = {};
-  
-  if (!form.category || !form.category.trim()) {
-    errors.category = "Category is required";
-  }
-  
-  if (!form.activityType || !form.activityType.trim()) {
-    errors.activityType = "Activity type is required";
-  }
-  
-  const num = Number(form.quantity);
-  if (!Number.isFinite(num) || num < 0) {
-    errors.quantity = "Quantity must be a positive number";
-  } else if (num > 999999) {
-    errors.quantity = "Quantity exceeds maximum allowed value";
-  }
-  
-  if (form.date && isNaN(new Date(form.date).getTime())) {
-    errors.date = "Invalid date format";
-  }
-  
-  return { isValid: Object.keys(errors).length === 0, errors };
-};
 
 const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submitting = false }) => {
   const [form, setForm] = useState(emptyForm);
@@ -100,7 +77,7 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
           <label htmlFor="activity-category">Category</label>
           <select
             id="activity-category"
-            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition focus:ring-2 ${formErrors.category ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
+            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition motion-reduce:transition-none motion-reduce:transform-none focus:ring-2 ${formErrors.category ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
             value={form.category}
             onChange={(event) => updateField("category", event.target.value)}
             required
@@ -120,7 +97,7 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
           <label htmlFor="activity-type">Activity type</label>
           <select
             id="activity-type"
-            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition focus:ring-2 ${formErrors.activityType ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
+            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition motion-reduce:transition-none motion-reduce:transform-none focus:ring-2 ${formErrors.activityType ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
             value={form.activityType}
             onChange={(event) => updateField("activityType", event.target.value)}
             required
@@ -140,7 +117,7 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
           <label htmlFor="activity-quantity">Quantity</label>
           <input
             id="activity-quantity"
-            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition focus:ring-2 ${formErrors.quantity ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
+            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition motion-reduce:transition-none motion-reduce:transform-none focus:ring-2 ${formErrors.quantity ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
             min="0"
             step="0.01"
             type="number"
@@ -157,7 +134,7 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
           <label htmlFor="activity-date">Date</label>
           <input
             id="activity-date"
-            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition focus:ring-2 ${formErrors.date ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
+            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition motion-reduce:transition-none motion-reduce:transform-none focus:ring-2 ${formErrors.date ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
             type="date"
             value={form.date}
             onChange={(event) => updateField("date", event.target.value)}
@@ -172,7 +149,7 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
           <label htmlFor="activity-notes">Notes</label>
           <textarea
             id="activity-notes"
-            className="min-h-24 rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
+            className="min-h-24 rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition motion-reduce:transition-none motion-reduce:transform-none focus:ring-2"
             value={form.notes}
             onChange={(event) => updateField("notes", event.target.value)}
             placeholder="Optional context"
@@ -184,7 +161,7 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save className="h-4 w-4" aria-hidden="true" />
           {initialData ? "Update activity" : "Add activity"}
@@ -193,7 +170,7 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-slate-100"
           >
             <X className="h-4 w-4" aria-hidden="true" />
             Cancel

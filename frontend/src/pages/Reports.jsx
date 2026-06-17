@@ -9,9 +9,10 @@ import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
 import { categories } from "../constants/categories";
-import { api } from "../services/api";
+import { reportService } from "../services/reportService";
 import { baseChartOptions, softChartColors } from "../utils/chartConfig";
 import { formatDate, formatKg } from "../utils/formatters";
+import { validateReportFilters } from "../validators/reportSchema";
 
 const Reports = () => {
   const [filters, setFilters] = useState({
@@ -26,7 +27,7 @@ const Reports = () => {
   const [downloading, setDownloading] = useState(false);
 
   const loadReport = useCallback(async (nextFilters = filters) => {
-    setReport(await api.getReport(nextFilters));
+    setReport(await reportService.getReport(nextFilters));
   }, [filters]);
 
   useEffect(() => {
@@ -51,6 +52,13 @@ const Reports = () => {
   const handleSubmit = useCallback(
     async (event) => {
       event.preventDefault();
+      
+      const { isValid, errors } = validateReportFilters(filters);
+      if (!isValid) {
+        setError(Object.values(errors)[0] || "Invalid filters");
+        return;
+      }
+      
       try {
         setError("");
         await loadReport(filters);
@@ -65,7 +73,7 @@ const Reports = () => {
     try {
       setDownloading(true);
       setError("");
-      await api.downloadReportPdf(filters);
+      await reportService.downloadReportPdf(filters);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -125,7 +133,7 @@ const Reports = () => {
             type="button"
             onClick={handleDownload}
             disabled={downloading}
-            className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Download className="h-4 w-4" aria-hidden="true" />
             Download PDF
@@ -140,7 +148,7 @@ const Reports = () => {
             <label htmlFor="report-type">Report type</label>
             <select
               id="report-type"
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none ring-teal-600 transition motion-reduce:transition-none motion-reduce:transform-none focus:ring-2"
               value={filters.type}
               onChange={(event) => updateFilter("type", event.target.value)}
             >
@@ -154,7 +162,7 @@ const Reports = () => {
             <label htmlFor="report-category">Category</label>
             <select
               id="report-category"
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none ring-teal-600 transition motion-reduce:transition-none motion-reduce:transform-none focus:ring-2"
               value={filters.category}
               onChange={(event) => updateFilter("category", event.target.value)}
             >
@@ -171,7 +179,7 @@ const Reports = () => {
             <label htmlFor="report-start-date">Start date</label>
             <input
               id="report-start-date"
-              className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition motion-reduce:transition-none motion-reduce:transform-none focus:ring-2"
               type="date"
               value={filters.startDate}
               max={filters.endDate || undefined}
@@ -183,7 +191,7 @@ const Reports = () => {
             <label htmlFor="report-end-date">End date</label>
             <input
               id="report-end-date"
-              className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition motion-reduce:transition-none motion-reduce:transform-none focus:ring-2"
               type="date"
               value={filters.endDate}
               min={filters.startDate || undefined}
@@ -194,7 +202,7 @@ const Reports = () => {
 
         <button
           type="submit"
-          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-slate-800"
         >
           <FileText className="h-4 w-4" aria-hidden="true" />
           Generate report

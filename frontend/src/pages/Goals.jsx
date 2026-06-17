@@ -6,77 +6,10 @@ import GoalForm from "../components/GoalForm";
 import LoadingState from "../components/LoadingState";
 import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
-import { api } from "../services/api";
+import { useGoals } from "../hooks/useGoals";
 
 const Goals = () => {
-  const [goals, setGoals] = useState([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-
-  const loadGoals = useCallback(async () => {
-    setGoals(await api.getGoals());
-  }, []);
-
-  useEffect(() => {
-    const run = async () => {
-      try {
-        setError("");
-        await loadGoals();
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    run();
-  }, [loadGoals]);
-
-  const handleSubmit = useCallback(
-    async (payload) => {
-      try {
-        setSubmitting(true);
-        setError("");
-        await api.createGoal(payload);
-        await loadGoals();
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [loadGoals]
-  );
-
-  const handleComplete = useCallback(
-    async (id) => {
-      try {
-        setError("");
-        await api.completeGoal(id);
-        await loadGoals();
-      } catch (err) {
-        setError(err.message);
-      }
-    },
-    [loadGoals]
-  );
-
-  const handleDelete = useCallback(
-    async (id) => {
-      const confirmed = window.confirm("Delete this goal?");
-      if (!confirmed) return;
-
-      try {
-        setError("");
-        await api.deleteGoal(id);
-        await loadGoals();
-      } catch (err) {
-        setError(err.message);
-      }
-    },
-    [loadGoals]
-  );
+  const { goals, error, loading, submitting, handleSubmit, handleComplete, handleDelete } = useGoals();
 
   if (loading) {
     return (

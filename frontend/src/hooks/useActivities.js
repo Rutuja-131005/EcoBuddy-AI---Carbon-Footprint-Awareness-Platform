@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { api } from "../services/api";
+import { activityService } from "../services/activityService";
+import { carbonService } from "../services/carbonService";
 
 export const useActivities = () => {
   const [activities, setActivities] = useState([]);
@@ -11,7 +12,7 @@ export const useActivities = () => {
 
   const loadData = useCallback(async () => {
     try {
-      const [activityData, factorData] = await Promise.all([api.getActivities(), api.getEmissionFactors()]);
+      const [activityData, factorData] = await Promise.all([activityService.getActivities(), carbonService.getEmissionFactors()]);
       setActivities(activityData?.data || activityData || []); // Handle paginated response structure if present
       setFactors(factorData?.data || factorData || []);
     } catch (err) {
@@ -35,9 +36,9 @@ export const useActivities = () => {
         setSubmitting(true);
         setError("");
         if (editing) {
-          await api.updateActivity(editing._id, payload);
+          await activityService.updateActivity(editing._id, payload);
         } else {
-          await api.createActivity(payload);
+          await activityService.createActivity(payload);
         }
         setEditing(null);
         await loadData();
@@ -57,7 +58,7 @@ export const useActivities = () => {
 
       try {
         setError("");
-        await api.deleteActivity(id);
+        await activityService.deleteActivity(id);
         await loadData();
       } catch (err) {
         setError(err.message);

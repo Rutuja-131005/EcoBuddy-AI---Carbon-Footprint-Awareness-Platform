@@ -52,7 +52,7 @@ const GoalCard = ({ goal, onComplete, onDelete }) => {
           <button
             type="button"
             onClick={() => onComplete(goal._id)}
-            className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-teal-800"
+            className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-3 py-2 text-sm font-semibold text-white transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-teal-800"
           >
             <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             Mark completed
@@ -61,7 +61,7 @@ const GoalCard = ({ goal, onComplete, onDelete }) => {
         <button
           type="button"
           onClick={() => onDelete(goal._id)}
-          className="inline-flex items-center gap-2 rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50"
+          className="inline-flex items-center gap-2 rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-rose-50"
         >
           <Trash2 className="h-4 w-4" aria-hidden="true" />
           Delete

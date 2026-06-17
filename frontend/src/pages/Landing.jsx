@@ -59,14 +59,14 @@ const Landing = () => (
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-lg bg-teal-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-teal-400"
+              className="inline-flex items-center gap-2 rounded-lg bg-teal-500 px-5 py-3 text-sm font-bold text-white transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-teal-400"
             >
               Go to Dashboard
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             <Link
               to="/activities"
-              className="inline-flex items-center gap-2 rounded-lg border border-white/40 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/40 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-white/20"
             >
               Track Activity
             </Link>
@@ -116,7 +116,7 @@ const Landing = () => (
             <h2 className="mt-2 text-3xl font-bold text-slate-950">Small decisions become measurable progress</h2>
             <Link
               to="/dashboard"
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-bold text-white transition motion-reduce:transition-none motion-reduce:transform-none hover:bg-slate-800"
             >
               Open Dashboard
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

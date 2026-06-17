@@ -9,13 +9,12 @@ import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import ProgressBar from "../components/ProgressBar";
 import StatCard from "../components/StatCard";
-import { useApiData } from "../hooks/useApiData";
-import { api } from "../services/api";
+import { useDashboard } from "../hooks/useDashboard";
 import { baseChartOptions, chartColors, softChartColors } from "../utils/chartConfig";
 import { formatDate, formatKg } from "../utils/formatters";
 
 const Dashboard = () => {
-  const { data: dashboard, error, loading } = useApiData(() => api.getDashboard());
+  const { dashboard, error, loading } = useDashboard();
 
   const categoryPieData = useMemo(() => {
     const items = dashboard?.categoryEmissions || [];
