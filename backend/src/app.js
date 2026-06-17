@@ -14,7 +14,7 @@ const recommendationRoutes = require("./routes/recommendationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const { loadEnv } = require("./config/env");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
-const { corsOptions, apiLimiter } = require("./middleware/security");
+const { corsOptions, globalLimiter, strictLimiter } = require("./middleware/security");
 
 dotenv.config();
 loadEnv();
@@ -33,7 +33,8 @@ if (process.env.NODE_ENV !== "test") {
   app.use(morgan("combined"));
 }
 
-app.use(apiLimiter);
+app.use(globalLimiter);
+app.use(strictLimiter);
 
 app.get("/api/health", (_req, res) => {
   const dbState = mongoose.connection.readyState;

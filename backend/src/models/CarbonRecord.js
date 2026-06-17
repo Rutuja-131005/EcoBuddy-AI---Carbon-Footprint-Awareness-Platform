@@ -51,5 +51,7 @@ const carbonRecordSchema = new mongoose.Schema(
 
 carbonRecordSchema.index({ recordedAt: -1 });
 carbonRecordSchema.index({ category: 1, recordedAt: -1 });
+carbonRecordSchema.index({ activity: 1, recordedAt: -1 });
+carbonRecordSchema.index({ recordedAt: -1, category: 1, emission: 1 });
 
 module.exports = mongoose.model("CarbonRecord", carbonRecordSchema);

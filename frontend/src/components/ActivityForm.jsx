@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import PropTypes from "prop-types";
 import { Save, X } from "lucide-react";
 import { categories, categoryActivityTypes } from "../constants/categories";
 import { toInputDate } from "../utils/formatters";
@@ -13,8 +14,34 @@ const emptyForm = {
 
 const unique = (values) => Array.from(new Set(values.filter(Boolean)));
 
+const validateActivityForm = (form) => {
+  const errors = {};
+  
+  if (!form.category || !form.category.trim()) {
+    errors.category = "Category is required";
+  }
+  
+  if (!form.activityType || !form.activityType.trim()) {
+    errors.activityType = "Activity type is required";
+  }
+  
+  const num = Number(form.quantity);
+  if (!Number.isFinite(num) || num < 0) {
+    errors.quantity = "Quantity must be a positive number";
+  } else if (num > 999999) {
+    errors.quantity = "Quantity exceeds maximum allowed value";
+  }
+  
+  if (form.date && isNaN(new Date(form.date).getTime())) {
+    errors.date = "Invalid date format";
+  }
+  
+  return { isValid: Object.keys(errors).length === 0, errors };
+};
+
 const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submitting = false }) => {
   const [form, setForm] = useState(emptyForm);
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     if (initialData) {
@@ -39,6 +66,7 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
   }, [factors, form.category]);
 
   const updateField = (key, value) => {
+    setFormErrors((prev) => ({ ...prev, [key]: undefined }));
     setForm((current) => {
       if (key === "category") {
         const firstType = categoryActivityTypes[value]?.[0] || "";
@@ -51,6 +79,14 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    
+    const { isValid, errors } = validateActivityForm(form);
+    
+    if (!isValid) {
+      setFormErrors(errors);
+      return;
+    }
+
     onSubmit({
       ...form,
       quantity: Number(form.quantity)
@@ -64,10 +100,12 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
           <label htmlFor="activity-category">Category</label>
           <select
             id="activity-category"
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
+            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition focus:ring-2 ${formErrors.category ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
             value={form.category}
             onChange={(event) => updateField("category", event.target.value)}
             required
+            aria-invalid={!!formErrors.category}
+            aria-describedby={formErrors.category ? "category-error" : undefined}
           >
             {categories.map((category) => (
               <option key={category} value={category}>
@@ -75,16 +113,19 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
               </option>
             ))}
           </select>
+          {formErrors.category && <span id="category-error" className="text-xs text-red-500">{formErrors.category}</span>}
         </div>
 
         <div className="grid gap-2 text-sm font-medium text-slate-700">
           <label htmlFor="activity-type">Activity type</label>
           <select
             id="activity-type"
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
+            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition focus:ring-2 ${formErrors.activityType ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
             value={form.activityType}
             onChange={(event) => updateField("activityType", event.target.value)}
             required
+            aria-invalid={!!formErrors.activityType}
+            aria-describedby={formErrors.activityType ? "type-error" : undefined}
           >
             {activityOptions.map((activityType) => (
               <option key={activityType} value={activityType}>
@@ -92,32 +133,39 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
               </option>
             ))}
           </select>
+          {formErrors.activityType && <span id="type-error" className="text-xs text-red-500">{formErrors.activityType}</span>}
         </div>
 
         <div className="grid gap-2 text-sm font-medium text-slate-700">
           <label htmlFor="activity-quantity">Quantity</label>
           <input
             id="activity-quantity"
-            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
+            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition focus:ring-2 ${formErrors.quantity ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
             min="0"
             step="0.01"
             type="number"
             value={form.quantity}
             onChange={(event) => updateField("quantity", event.target.value)}
             required
+            aria-invalid={!!formErrors.quantity}
+            aria-describedby={formErrors.quantity ? "quantity-error" : undefined}
           />
+          {formErrors.quantity && <span id="quantity-error" className="text-xs text-red-500">{formErrors.quantity}</span>}
         </div>
 
         <div className="grid gap-2 text-sm font-medium text-slate-700">
           <label htmlFor="activity-date">Date</label>
           <input
             id="activity-date"
-            className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-teal-600 transition focus:ring-2"
+            className={`rounded-lg border px-3 py-2 text-slate-900 outline-none transition focus:ring-2 ${formErrors.date ? 'border-red-500 ring-red-500' : 'border-slate-300 ring-teal-600'}`}
             type="date"
             value={form.date}
             onChange={(event) => updateField("date", event.target.value)}
             required
+            aria-invalid={!!formErrors.date}
+            aria-describedby={formErrors.date ? "date-error" : undefined}
           />
+          {formErrors.date && <span id="date-error" className="text-xs text-red-500">{formErrors.date}</span>}
         </div>
 
         <div className="grid gap-2 text-sm font-medium text-slate-700 md:col-span-2">
@@ -154,6 +202,14 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
       </div>
     </form>
   );
+};
+
+ActivityForm.propTypes = {
+  factors: PropTypes.array,
+  initialData: PropTypes.object,
+  onCancel: PropTypes.func,
+  onSubmit: PropTypes.func.isRequired,
+  submitting: PropTypes.bool
 };
 
 export default ActivityForm;

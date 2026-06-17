@@ -5,13 +5,43 @@ const { createError } = require("../utils/errors");
 const { parseActivityBody } = require("../utils/payloadParser");
 const { sendCreated, sendSuccess, sendSuccessWithMessage } = require("../utils/response");
 
+const VALID_CATEGORIES = require("../utils/constants").CATEGORIES || ["Energy", "Transport", "Diet", "Shopping"];
+
 const getActivities = asyncHandler(async (req, res) => {
   const filter = {};
-  if (req.query.category) filter.category = String(req.query.category);
+  
+  if (req.query.category) {
+    const category = String(req.query.category).trim();
+    if (!VALID_CATEGORIES.includes(category)) {
+      throw createError(400, `Invalid category. Must be one of: ${VALID_CATEGORIES.join(", ")}`);
+    }
+    filter.category = category;
+  }
 
-  const activities = await Activity.find(filter).sort({ date: -1, createdAt: -1 });
+  // Pagination
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+  const skip = (page - 1) * limit;
 
-  sendSuccess(res, activities);
+  const [activities, total] = await Promise.all([
+    Activity.find(filter)
+      .sort({ date: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Activity.countDocuments(filter)
+  ]);
+
+  res.json({
+    success: true,
+    data: activities,
+    pagination: {
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit)
+    }
+  });
 });
 
 const getActivity = asyncHandler(async (req, res) => {

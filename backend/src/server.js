@@ -1,8 +1,12 @@
 const dotenv = require("dotenv");
+const { validateEnv } = require("./utils/env");
+
+validateEnv();
+dotenv.config();
+
+const logger = require("./utils/logger");
 const app = require("./app");
 const connectDB = require("./config/db");
-
-dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
@@ -12,18 +16,18 @@ const startServer = async () => {
   await connectDB();
 
   server = app.listen(PORT, () => {
-    console.log(`EcoBuddy AI API running on port ${PORT}`);
+    logger.info(`EcoBuddy AI API running on port ${PORT}`);
   });
 };
 
 const handleGracefulShutdown = async (signal) => {
-  console.log(`Received ${signal}. Starting graceful shutdown...`);
+  logger.info(`Received ${signal}. Starting graceful shutdown...`);
   if (server) {
     server.close(async () => {
-      console.log("HTTP server closed.");
+      logger.info("HTTP server closed.");
       const mongoose = require("mongoose");
       await mongoose.disconnect();
-      console.log("Database connection closed.");
+      logger.info("Database connection closed.");
       process.exit(0);
     });
   } else {
@@ -32,12 +36,12 @@ const handleGracefulShutdown = async (signal) => {
 };
 
 process.on("uncaughtException", (error) => {
-  console.error("Uncaught Exception! Shutting down gracefully...", error);
+  logger.error("Uncaught Exception! Shutting down gracefully...", error);
   process.exit(1);
 });
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  logger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
   if (server) {
     server.close(() => process.exit(1));
   } else {
@@ -49,6 +53,6 @@ process.on("SIGTERM", () => handleGracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => handleGracefulShutdown("SIGINT"));
 
 startServer().catch((error) => {
-  console.error(error);
+  logger.error("Failed to start server", error);
   process.exit(1);
 });

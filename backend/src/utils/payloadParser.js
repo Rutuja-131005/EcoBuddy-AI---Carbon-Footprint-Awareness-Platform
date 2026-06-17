@@ -1,4 +1,5 @@
 const { parseDate } = require("./normalize");
+const { sanitizeActivityPayload } = require("./sanitization");
 
 /**
  * Coerces validated activity request fields for service layer consumption.
@@ -21,7 +22,7 @@ const parseActivityBody = (body) => {
     payload.date = parseDate(payload.date) || new Date(payload.date);
   }
 
-  return payload;
+  return sanitizeActivityPayload(payload);
 };
 
 /**

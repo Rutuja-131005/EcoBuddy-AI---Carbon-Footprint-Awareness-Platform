@@ -68,7 +68,13 @@ const carbonScore = (monthlyTotal) => {
   return { score, label: "High impact", tone: "action-needed" };
 };
 
+const { getCacheKey, setCacheKey } = require("../utils/cache");
+
 const getDashboard = async () => {
+  const cacheKey = "dashboard:all";
+  const cachedData = getCacheKey(cacheKey);
+  if (cachedData) return cachedData;
+
   const now = new Date();
   const startEightWeeksAgo = startOfWeek(now);
   startEightWeeksAgo.setDate(startEightWeeksAgo.getDate() - 7 * 7);
@@ -96,7 +102,7 @@ const getDashboard = async () => {
       .reduce((sum, record) => sum + record.emission, 0)
   );
 
-  return {
+  const dashboardData = {
     totalFootprint,
     monthlyTotal,
     carbonScore: carbonScore(monthlyTotal),
@@ -109,6 +115,9 @@ const getDashboard = async () => {
     recentActivities,
     goals
   };
+
+  setCacheKey(cacheKey, dashboardData, 5 * 60 * 1000); // 5 minutes cache
+  return dashboardData;
 };
 
 module.exports = {

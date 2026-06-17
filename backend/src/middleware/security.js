@@ -18,18 +18,32 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-const apiLimiter = rateLimit({
-  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+const globalLimiter = rateLimit({
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000), // 15 minutes
   max: Number(process.env.RATE_LIMIT_MAX_REQUESTS || 150),
-  standardHeaders: true,
-  legacyHeaders: false,
+  skip: (req) => req.method === "GET", // Skip for read operations
   message: {
     success: false,
-    message: "Too many requests from this IP, please try again later."
-  }
+    message: "Too many requests from this IP, please try again after 15 minutes."
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30, // Only 30 writes per 15 minutes
+  skip: (req) => req.method !== "POST" && req.method !== "PUT" && req.method !== "DELETE",
+  message: {
+    success: false,
+    message: "Too many write requests. Please wait before trying again."
+  },
+  standardHeaders: true,
+  legacyHeaders: false
 });
 
 module.exports = {
   corsOptions,
-  apiLimiter
+  globalLimiter,
+  strictLimiter
 };

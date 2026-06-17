@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import ErrorBanner from "./ErrorBanner";
 
 class ErrorBoundary extends React.Component {
@@ -14,7 +15,7 @@ class ErrorBoundary extends React.Component {
     };
   }
 
-  componentDidCatch(_error) {
+  componentDidCatch() {
     // Errors are surfaced through the fallback UI.
   }
 
@@ -37,5 +38,9 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node
+};
 
 export default ErrorBoundary;

@@ -1,4 +1,5 @@
 import { memo } from "react";
+import PropTypes from "prop-types";
 import { Edit3, Trash2 } from "lucide-react";
 import EmptyState from "./EmptyState";
 import { formatDate, formatKg, formatNumber } from "../utils/formatters";
@@ -81,6 +82,12 @@ const ActivityTable = ({ activities = [], onDelete, onEdit }) => {
       </div>
     </div>
   );
+};
+
+ActivityTable.propTypes = {
+  activities: PropTypes.array,
+  onDelete: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired
 };
 
 export default memo(ActivityTable);
