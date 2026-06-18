@@ -36,10 +36,29 @@ const GoalForm = ({ onSubmit, submitting = false }) => {
       return;
     }
 
+    const reduction = parseFloat(form.targetReduction);
+    if (isNaN(reduction) || reduction <= 0) {
+      setFormErrors({ targetReduction: "Please enter a valid positive number for target reduction." });
+      return;
+    }
+
+    let baseline = undefined;
+    if (form.baselineEmission !== "") {
+      baseline = parseFloat(form.baselineEmission);
+      if (isNaN(baseline) || baseline < 0) {
+        setFormErrors({ baselineEmission: "Please enter a valid non-negative number for baseline." });
+        return;
+      }
+    }
+
+    const sanitize = (str) => typeof str === 'string' ? str.replace(/<[^>]*>?/gm, '') : str;
+
     onSubmit({
       ...form,
-      targetReduction: Number(form.targetReduction),
-      baselineEmission: form.baselineEmission === "" ? undefined : Number(form.baselineEmission)
+      title: sanitize(form.title),
+      notes: sanitize(form.notes),
+      targetReduction: reduction,
+      baselineEmission: baseline
     });
     setForm(initialGoal);
     setFormErrors({});

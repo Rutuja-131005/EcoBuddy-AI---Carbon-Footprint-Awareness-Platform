@@ -64,9 +64,21 @@ const ActivityForm = ({ factors = [], initialData, onCancel, onSubmit, submittin
       return;
     }
 
+    const qty = parseFloat(form.quantity);
+    if (isNaN(qty) || qty <= 0) {
+      setFormErrors({ quantity: "Please enter a valid positive number for quantity." });
+      return;
+    }
+
+    // Sanitize string inputs to prevent basic script injections
+    const sanitize = (str) => typeof str === 'string' ? str.replace(/<[^>]*>?/gm, '') : str;
+
     onSubmit({
       ...form,
-      quantity: Number(form.quantity)
+      category: sanitize(form.category),
+      activityType: sanitize(form.activityType),
+      notes: sanitize(form.notes),
+      quantity: qty
     });
   };
 

@@ -25,5 +25,15 @@ export const validateGoalForm = (form) => {
     }
   }
   
+  const hasScriptTags = (str) => /<script\b[^>]*>[\s\S]*?<\/script>/gi.test(str);
+
+  if (goal.title && hasScriptTags(goal.title)) {
+    errors.title = "Invalid characters detected in title.";
+  }
+
+  if (goal.notes && hasScriptTags(goal.notes)) {
+    errors.notes = "Invalid characters detected in notes.";
+  }
+
   return { isValid: Object.keys(errors).length === 0, errors };
 };

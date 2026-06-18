@@ -20,5 +20,15 @@ export const validateActivityForm = (form) => {
     errors.date = "Invalid date format";
   }
   
+  const hasScriptTags = (str) => /<script\b[^>]*>[\s\S]*?<\/script>/gi.test(str);
+
+  if (activity.notes && hasScriptTags(activity.notes)) {
+    errors.notes = "Invalid characters detected in notes.";
+  }
+
+  if (hasScriptTags(activity.category) || hasScriptTags(activity.activityType)) {
+    errors.category = "Invalid characters detected.";
+  }
+
   return { isValid: Object.keys(errors).length === 0, errors };
 };
