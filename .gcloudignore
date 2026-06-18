@@ -39,7 +39,6 @@ coverage/
 
 # Docker files (not needed for Cloud Run)
 docker-compose.yml
-Dockerfile
 
 # CI/CD files
 .github/
