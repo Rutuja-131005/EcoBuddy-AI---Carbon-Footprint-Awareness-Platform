@@ -4,7 +4,7 @@ import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import RecommendationCard from "../components/RecommendationCard";
 import EmptyState from "../components/EmptyState";
-import { useRecommendations } from "../hooks/useRecommendations";
+import { useRecommendations } from "../../../src/hooks/useRecommendations";
 
 const Recommendations = () => {
   const { recommendations, error, loading } = useRecommendations();

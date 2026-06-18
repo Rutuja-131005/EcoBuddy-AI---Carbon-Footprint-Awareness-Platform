@@ -7,7 +7,7 @@ import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
 import { formatKg } from "../utils/formatters";
-import { useActivities } from "../hooks/useActivities";
+import { useActivities } from "../../../src/hooks/useActivities";
 
 const Activities = () => {
   const {

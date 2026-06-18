@@ -22,7 +22,31 @@ loadEnv();
 const app = express();
 app.set("trust proxy", 1);
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https:"],
+      fontSrc: ["'self'", "data:"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'self'"]
+    }
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  frameguard: {
+    action: 'sameorigin'
+  },
+  referrerPolicy: {
+    policy: 'strict-origin-when-cross-origin'
+  }
+}));
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "512kb" }));
 app.use(express.urlencoded({ extended: true, limit: "512kb" }));

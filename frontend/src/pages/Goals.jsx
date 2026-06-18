@@ -6,7 +6,7 @@ import GoalForm from "../components/GoalForm";
 import LoadingState from "../components/LoadingState";
 import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
-import { useGoals } from "../hooks/useGoals";
+import { useGoals } from "../../../src/hooks/useGoals";
 
 const Goals = () => {
   const { goals, error, loading, submitting, handleSubmit, handleComplete, handleDelete } = useGoals();

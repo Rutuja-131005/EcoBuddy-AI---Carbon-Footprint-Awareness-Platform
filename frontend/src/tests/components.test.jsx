@@ -12,12 +12,12 @@ import EmptyState from "../components/EmptyState";
 import ActivityForm from "../components/ActivityForm";
 import Navbar from "../components/Navbar";
 import App from "../App";
-import { activityService } from "../services/activityService";
-import { carbonService } from "../services/carbonService";
-import { goalService } from "../services/goalService";
-import { reportService } from "../services/reportService";
+import { activityService } from "../../../src/services/activityService";
+import { carbonService } from "../../../src/services/carbonService";
+import { goalService } from "../../../src/services/goalService";
+import { reportService } from "../../../src/services/reportService";
 
-jest.mock("../services/activityService", () => ({
+jest.mock("../../../src/services/activityService", () => ({
   activityService: {
     getActivities: jest.fn(),
     createActivity: jest.fn(),
@@ -26,7 +26,7 @@ jest.mock("../services/activityService", () => ({
   }
 }));
 
-jest.mock("../services/carbonService", () => ({
+jest.mock("../../../src/services/carbonService", () => ({
   carbonService: {
     getDashboard: jest.fn(),
     getEmissionFactors: jest.fn(),
@@ -34,7 +34,7 @@ jest.mock("../services/carbonService", () => ({
   }
 }));
 
-jest.mock("../services/goalService", () => ({
+jest.mock("../../../src/services/goalService", () => ({
   goalService: {
     getGoals: jest.fn(),
     createGoal: jest.fn(),
@@ -43,7 +43,7 @@ jest.mock("../services/goalService", () => ({
   }
 }));
 
-jest.mock("../services/reportService", () => ({
+jest.mock("../../../src/services/reportService", () => ({
   reportService: {
     getReport: jest.fn(),
     downloadReportPdf: jest.fn()

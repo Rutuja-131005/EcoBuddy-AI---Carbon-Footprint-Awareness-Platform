@@ -9,7 +9,7 @@ import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import ProgressBar from "../components/ProgressBar";
 import StatCard from "../components/StatCard";
-import { useDashboard } from "../hooks/useDashboard";
+import { useDashboard } from "../../../src/hooks/useDashboard";
 import { baseChartOptions, chartColors, softChartColors } from "../utils/chartConfig";
 import { formatDate, formatKg } from "../utils/formatters";
 

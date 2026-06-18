@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Target } from "lucide-react";
 import { toInputDate } from "../utils/formatters";
-import { validateGoalForm } from "../validators/goalSchema";
+import { validateGoalForm } from "../../../src/validators/goalSchema";
 
 const oneMonthFromNow = () => {
   const date = new Date();

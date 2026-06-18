@@ -1,9 +1,9 @@
 /**
  * @jest-environment jsdom
  */
-import { activityService } from "../services/activityService";
-import { carbonService } from "../services/carbonService";
-import { reportService } from "../services/reportService";
+import { activityService } from "../../../src/services/activityService";
+import { carbonService } from "../../../src/services/carbonService";
+import { reportService } from "../../../src/services/reportService";
 
 describe("EcoBuddy AI API client", () => {
   beforeEach(() => {

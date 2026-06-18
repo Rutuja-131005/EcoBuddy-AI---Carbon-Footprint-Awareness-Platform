@@ -9,10 +9,10 @@ import PageContainer from "../components/PageContainer";
 import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
 import { categories } from "../constants/categories";
-import { reportService } from "../services/reportService";
+import { reportService } from "../../../src/services/reportService";
 import { baseChartOptions, softChartColors } from "../utils/chartConfig";
 import { formatDate, formatKg } from "../utils/formatters";
-import { validateReportFilters } from "../validators/reportSchema";
+import { validateReportFilters } from "../../../src/validators/reportSchema";
 
 const Reports = () => {
   const [filters, setFilters] = useState({

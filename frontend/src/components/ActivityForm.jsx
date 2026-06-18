@@ -4,7 +4,7 @@ import { Save, X } from "lucide-react";
 import { categories, categoryActivityTypes } from "../constants/categories";
 import { toInputDate } from "../utils/formatters";
 
-import { validateActivityForm } from "../validators/activitySchema";
+import { validateActivityForm } from "../../../src/validators/activitySchema";
 
 const emptyForm = {
   category: "Transport",
