@@ -48,18 +48,22 @@ gcloud auth configure-docker "$Region-docker.pkg.dev"
 # Build and push backend image
 Write-Host "`nBuilding and pushing backend image..." -ForegroundColor Green
 $BackendImage = "$Region-docker.pkg.dev/$ProjectId/$ArtifactRepo/backend:latest"
-docker build -t $BackendImage ./backend
-docker push $BackendImage
+gcloud builds submit --tag $BackendImage ./backend
 
 # Build and push frontend image
 Write-Host "`nBuilding and pushing frontend image..." -ForegroundColor Green
 $FrontendImage = "$Region-docker.pkg.dev/$ProjectId/$ArtifactRepo/frontend:latest"
 $BackendUrl = "https://$BackendService-$ProjectId.$Region.run.app/api"
-docker build `
-  -t $FrontendImage `
-  --build-arg "VITE_API_URL=$BackendUrl" `
-  ./frontend
-docker push $FrontendImage
+$CloudBuildConfig = @"
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', '`$_IMAGE', '--build-arg', 'VITE_API_URL=`$_VITE_API_URL', '-f', 'frontend/Dockerfile', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', '`$_IMAGE']
+"@
+$CloudBuildConfig | Out-File -FilePath "cloudbuild-tmp.yaml" -Encoding utf8
+gcloud builds submit --config cloudbuild-tmp.yaml --substitutions="_IMAGE=$FrontendImage,_VITE_API_URL=$BackendUrl" .
+Remove-Item "cloudbuild-tmp.yaml"
 
 # Deploy backend to Cloud Run
 Write-Host "`nDeploying backend to Cloud Run..." -ForegroundColor Green
@@ -68,11 +72,11 @@ gcloud run deploy $BackendService `
   --region=$Region `
   --platform=managed `
   --allow-unauthenticated `
-  --set-env-vars="MONGODB_URI=$MongoDBUri,NODE_ENV=production,PORT=8080,CLIENT_ORIGIN=https://$FrontendService-$ProjectId.$Region.run.app" `
+  --set-env-vars="MONGODB_URI=$MongoDBUri,NODE_ENV=production,CLIENT_ORIGIN=https://$FrontendService-$ProjectId.$Region.run.app" `
   --memory=512Mi `
   --cpu=1 `
   --timeout=3600 `
-  --max-instances=100
+  --max-instances=10
 
 # Get backend URL
 $BackendURL = (gcloud run services describe $BackendService `
@@ -91,7 +95,7 @@ gcloud run deploy $FrontendService `
   --memory=256Mi `
   --cpu=1 `
   --timeout=3600 `
-  --max-instances=50
+  --max-instances=10
 
 # Get frontend URL
 $FrontendURL = (gcloud run services describe $FrontendService `
