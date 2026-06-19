@@ -7,7 +7,7 @@ EcoBuddy AI is an intelligent **Carbon Footprint Awareness Platform** that helps
 
 ## 🚀 Live Demo
 
-🔗 **Website:** https://your-live-url.com
+🔗 **Website:** https://ecobuddy-frontend-403102791132.us-central1.run.app/
 
 🔗 **GitHub Repository:** https://github.com/Rutuja-131005/Carbon-Footprint-Awareness-Platform
 
